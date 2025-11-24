@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cargando Pedido Rápido...</title>
+    
+    <link rel="manifest" href="./manifest.json">
+    <meta name="theme-color" content="#ff9900">
+    <link rel="apple-touch-icon" href="icon.png">
+
+    <style>
+        body { 
+            font-family: sans-serif; 
+            text-align: center; 
+            margin-top: 100px;
+            color: #333;
+        }
+        .spinner {
+            border: 8px solid #f3f3f3;
+            border-top: 8px solid #ff9900; 
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <h1>¡Hola de nuevo!</h1>
+    <p>Estamos cargando tu perfil para que pidas más rápido.</p>
+    <div class="spinner"></div>
+
+    <script>
+      // 🚨 IMPORTANTE: CONFIGURACIÓN 🚨
+      const URL_BASE_NERTAIL = "TU_URL_DE_NERTAIL_AQUÍ"; // ¡DEBES PONER TU LINK!
+      const PARAM_NOMBRE = "nombre";
+      const PARAM_TELEFONO = "telefono"; 
+      
+      // 1. REGISTRAR PWA (para que se pueda instalar)
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('./sw.js');
+      }
+
+      // 2. GESTIÓN DEL PERFIL
+      const perfilGuardado = localStorage.getItem('perfilSmoothie');
+      
+      if (perfilGuardado) {
+        const datos = JSON.parse(perfilGuardado);
+        
+        // Construir la URL con los datos guardados
+        let urlConPerfil = `${URL_BASE_NERTAIL}?${PARAM_NOMBRE}=${encodeURIComponent(datos.nombre)}&${PARAM_TELEFONO}=${encodeURIComponent(datos.telefono)}`;
+        
+        // Redirigir al cliente a Nertail con los campos pre-llenados
+        window.location.replace(urlConPerfil);
+        
+      } else {
+        // Cliente nuevo: forzar la primera captura del perfil
+        const formPrompt = '¡Bienvenido! Para guardar tu perfil, dinos tu nombre:';
+        const nombre = prompt(formPrompt);
+        
+        if (nombre) {
+            const telefono = prompt('Excelente, ahora dinos tu teléfono (solo números):');
+            if (telefono) {
+                // Guardar perfil por primera vez
+                localStorage.setItem('perfilSmoothie', JSON.stringify({ nombre: nombre, telefono: telefono }));
+                alert('¡Perfil guardado! Serás redirigido al menú.');
+                
+                // Redirigir a Nertail sin pre-llenar (pues el cliente está a punto de llenar todo)
+                window.location.replace(URL_BASE_NERTAIL);
+            } else {
+                 // Si cancela teléfono, redirigir sin guardar
+                 window.location.replace(URL_BASE_NERTAIL);
+            }
+        } else {
+            // Si cancela nombre, redirigir sin guardar
+            window.location.replace(URL_BASE_NERTAIL);
+        }
+      }
+    </script>
+</body>
+</html>
