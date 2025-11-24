@@ -5,38 +5,33 @@
   const PARAM_TELEFONO = "telefono"; 
   // -----------------------------------------------------------
   
-  // 1. REGISTRAR PWA (para que sea instalable)
+  // 1. REGISTRAR PWA
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js');
   }
 
-  // 2. GESTIÓN DEL PERFIL (SIN ESPERAS ASÍNCRONAS)
+  // 2. GESTIÓN DEL PERFIL
   
   const perfilGuardado = localStorage.getItem('perfilSmoothie');
-  let destinationURL = URL_BASE_NERTAIL; // Por defecto, redirigir a Nertail base
+  let destinationURL = URL_BASE_NERTAIL; 
   let datos = {}; 
   
   if (perfilGuardado) {
-    // 🟢 CLIENTE FRECUENTE
+    // 🟢 CLIENTE FRECUENTE: La redirección debe ser instantánea
     datos = JSON.parse(perfilGuardado);
-    
-    // Construir la URL con los datos guardados
     destinationURL = `${URL_BASE_NERTAIL}?${PARAM_NOMBRE}=${encodeURIComponent(datos.nombre)}&${PARAM_TELEFONO}=${encodeURIComponent(datos.telefono)}`;
     
-    // Actualizar mensaje (esto ocurre justo antes de la redirección)
     document.querySelector('h1').innerText = `¡Hola de nuevo, ${datos.nombre}!`;
     document.querySelector('p').innerText = 'Redirigiendo con tu perfil listo...';
 
   } else {
-    // 🟡 CLIENTE NUEVO (Si cancela, la URL sigue siendo la base de Nertail)
-    
+    // 🟡 CLIENTE NUEVO
     const nombre = prompt('¡Bienvenido! Para guardar tu perfil y que la próxima vez sea más rápido, dinos tu nombre:');
     
     if (nombre) {
         const telefono = prompt(`Hola ${nombre}, ahora dinos tu teléfono (solo números):`);
         
         if (telefono) {
-            // Guardar perfil y construir URL de pre-llenado
             datos = { nombre: nombre, telefono: telefono };
             localStorage.setItem('perfilSmoothie', JSON.stringify(datos));
             destinationURL = `${URL_BASE_NERTAIL}?${PARAM_NOMBRE}=${encodeURIComponent(nombre)}&${PARAM_TELEFONO}=${encodeURIComponent(telefono)}`;
@@ -44,15 +39,14 @@
         } 
     } 
     
-    // Actualizar mensaje para nuevos usuarios
     if (!nombre || !telefono) {
         document.querySelector('h1').innerText = `¡Bienvenido!`;
         document.querySelector('p').innerText = 'Redirigiendo al menú de pedidos...';
     }
   }
 
-  // ➡️ REDIRECCIÓN INMEDIATA Y GARANTIZADA
-  // Esta línea se ejecuta inmediatamente después de que termina la lógica anterior.
-  window.location.replace(destinationURL); 
+  // ➡️ REDIRECCIÓN FORZADA CON JAVASCRIPT
+  // Usamos .href = en lugar de .replace()
+  window.location.href = destinationURL; 
 
 </script>
