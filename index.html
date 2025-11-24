@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cargando Pedido Rápido...</title>
+    <title>Cargando Pedido Smoothie Lab...</title>
     
     <link rel="manifest" href="./manifest.json">
     <meta name="theme-color" content="#ff9900">
@@ -11,11 +11,14 @@
 
     <style>
         body { 
-            font-family: sans-serif; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
             text-align: center; 
-            margin-top: 100px;
+            margin-top: 10vh;
             color: #333;
+            background-color: #f4f4f9;
         }
+        h1 { color: #ff9900; margin-bottom: 5px; }
+        p { font-size: 1.1em; }
         .spinner {
             border: 8px solid #f3f3f3;
             border-top: 8px solid #ff9900; 
@@ -23,7 +26,7 @@
             width: 60px;
             height: 60px;
             animation: spin 1s linear infinite;
-            margin: 20px auto;
+            margin: 30px auto;
         }
         @keyframes spin {
             0% { transform: rotate(0deg); }
@@ -32,56 +35,43 @@
     </style>
 </head>
 <body>
-    <h1>¡Hola de nuevo!</h1>
-    <p>Estamos cargando tu perfil para que pidas más rápido.</p>
+    <h1>Cargando Pedido Rápido...</h1>
+    <p>Estamos revisando si tienes un perfil guardado. ¡Un momento!</p>
     <div class="spinner"></div>
 
     <script>
-      // 🚨 IMPORTANTE: CONFIGURACIÓN 🚨
-      const URL_BASE_NERTAIL = "TU_URL_DE_NERTAIL_AQUÍ"; // ¡DEBES PONER TU LINK!
+      // --- CONFIGURACIÓN DE NERTAIL (YA CONFIGURADA) ---
+      const URL_BASE_NERTAIL = "https://near.tl/sm/EjNeimTXT"; 
+      // Asumimos que Nertail usa nombres de variables sencillos:
       const PARAM_NOMBRE = "nombre";
       const PARAM_TELEFONO = "telefono"; 
+      // -----------------------------------------------------------
       
-      // 1. REGISTRAR PWA (para que se pueda instalar)
+      // 1. REGISTRAR PWA (Para que sea instalable)
       if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('./sw.js');
       }
 
       // 2. GESTIÓN DEL PERFIL
-      const perfilGuardado = localStorage.getItem('perfilSmoothie');
-      
-      if (perfilGuardado) {
-        const datos = JSON.parse(perfilGuardado);
+      document.addEventListener('DOMContentLoaded', () => {
+        const perfilGuardado = localStorage.getItem('perfilSmoothie');
         
-        // Construir la URL con los datos guardados
-        let urlConPerfil = `${URL_BASE_NERTAIL}?${PARAM_NOMBRE}=${encodeURIComponent(datos.nombre)}&${PARAM_TELEFONO}=${encodeURIComponent(datos.telefono)}`;
-        
-        // Redirigir al cliente a Nertail con los campos pre-llenados
-        window.location.replace(urlConPerfil);
-        
-      } else {
-        // Cliente nuevo: forzar la primera captura del perfil
-        const formPrompt = '¡Bienvenido! Para guardar tu perfil, dinos tu nombre:';
-        const nombre = prompt(formPrompt);
-        
-        if (nombre) {
-            const telefono = prompt('Excelente, ahora dinos tu teléfono (solo números):');
-            if (telefono) {
-                // Guardar perfil por primera vez
-                localStorage.setItem('perfilSmoothie', JSON.stringify({ nombre: nombre, telefono: telefono }));
-                alert('¡Perfil guardado! Serás redirigido al menú.');
-                
-                // Redirigir a Nertail sin pre-llenar (pues el cliente está a punto de llenar todo)
-                window.location.replace(URL_BASE_NERTAIL);
-            } else {
-                 // Si cancela teléfono, redirigir sin guardar
-                 window.location.replace(URL_BASE_NERTAIL);
-            }
+        if (perfilGuardado) {
+          // CLIENTE FRECUENTE: Redirección rápida con datos.
+          const datos = JSON.parse(perfilGuardado);
+          
+          let urlConPerfil = `${URL_BASE_NERTAIL}?${PARAM_NOMBRE}=${encodeURIComponent(datos.nombre)}&${PARAM_TELEFONO}=${encodeURIComponent(datos.telefono)}`;
+          
+          // Actualizar el mensaje antes de redirigir
+          document.querySelector('h1').innerText = `¡Hola de nuevo, ${datos.nombre}!`;
+          document.querySelector('p').innerText = 'Redirigiendo con tu perfil listo...';
+          
+          // Redirección
+          setTimeout(() => {
+             window.location.replace(urlConPerfil);
+          }, 500); // Pequeño retraso para que el mensaje sea visible
+
         } else {
-            // Si cancela nombre, redirigir sin guardar
-            window.location.replace(URL_BASE_NERTAIL);
-        }
-      }
-    </script>
-</body>
-</html>
+          // CLIENTE NUEVO: Solicitar datos para guardar perfil por primera vez.
+          
+          const formPromptNombre = '¡Bien
